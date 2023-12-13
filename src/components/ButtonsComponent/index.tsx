@@ -1,4 +1,4 @@
-import { Component } from "solid-js";
+import { Component, createSignal } from "solid-js";
 import styles from "./styles.module.css";
 
 interface ButtonsProps {
@@ -8,7 +8,37 @@ interface ButtonsProps {
 }
 
 const ButtonsComponent: Component<ButtonsProps> = (props: ButtonsProps) => {
-    return <div class={styles.wrapper}>
+    const [isOpen, setIsOpen] = createSignal<boolean>(false);
+    const [numberInputs, setNumberInputs] = createSignal<number>(0);
+    const [numberOutputs, setNumberOutputs] = createSignal<number>(0);
+
+    function handleOnClickAdd(event: any) {
+        event.stopPropagation();
+        setIsOpen(true);
+    }
+
+    function handleOnClickAddNode(event: any) {
+        event.stopPropagation();
+        
+        if (numberInputs() > 4 || numberInputs() < 0 || numberOutputs() > 4 || numberOutputs() < 0) return;
+
+        setIsOpen(false);
+        props.onClickAdd(numberInputs(), numberOutputs());
+
+        setNumberInputs(0);
+        setNumberOutputs(0);
+    }
+    
+    function handleChangeNumberInputs(event: any) {
+        setNumberInputs(event.target.value);
+    }
+
+    function handleChangeNumberOutputs(event: any) {
+        setNumberOutputs(event.target.value);
+    }
+
+    return (
+    <div class={styles.wrapper}>
         <button class={props.showDelete ? styles.buttonDelete : styles.buttonDeleteHidden} onClick={props.onClickDelete}>
             <svg fill="currentColor" 
                     stroke-width="0" 
@@ -21,7 +51,7 @@ const ButtonsComponent: Component<ButtonsProps> = (props: ButtonsProps) => {
                 </path>
             </svg>
         </button>
-        <button class={styles.buttonAdd}>
+        <button class={styles.buttonAdd} onClick={handleOnClickAdd}>
             <svg fill="currentColor" 
                     stroke-width="0" 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -33,7 +63,16 @@ const ButtonsComponent: Component<ButtonsProps> = (props: ButtonsProps) => {
                 </path>
             </svg>
         </button>
-    </div>;
+        <div class={isOpen() ? styles.dropdown : styles.dropdownHidden}>
+            <label class={styles.label}>Number of inputs</label>
+            <input class={styles.input} type="number" value={numberInputs()} onInput={handleChangeNumberInputs}></input>
+            <label class={styles.label}>Number of outputs</label>
+            <input class={styles.input} type="number" value={numberOutputs()} onInput={handleChangeNumberOutputs}></input>
+            <button class={styles.buttonRect} onClick={handleOnClickAddNode}>
+                Add node
+            </button>
+        </div>
+    </div>);
 };
 
 export default ButtonsComponent;
