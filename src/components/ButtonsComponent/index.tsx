@@ -1,5 +1,12 @@
-import { Component, createSignal } from "solid-js";
+import { Component, createSignal, onCleanup } from "solid-js";
 import styles from "./styles.module.css";
+
+function clickOutside(el: any, accessor: any) {
+    const onClick = (e: any) => !el.contains(e.target) && accessor()?.();
+    document.body.addEventListener("click", onClick);
+
+    onCleanup(() => document.body.removeEventListener("click", onClick));
+}
 
 interface ButtonsProps {
     showDelete: boolean;
@@ -37,6 +44,12 @@ const ButtonsComponent: Component<ButtonsProps> = (props: ButtonsProps) => {
         setNumberOutputs(event.target.value);
     }
 
+    function handleClickOutsideDropdown() {
+        setIsOpen(false);
+        setNumberInputs(0);
+        setNumberOutputs(0);
+    }
+
     return (
     <div class={styles.wrapper}>
         <button class={props.showDelete ? styles.buttonDelete : styles.buttonDeleteHidden} onClick={props.onClickDelete}>
@@ -63,7 +76,10 @@ const ButtonsComponent: Component<ButtonsProps> = (props: ButtonsProps) => {
                 </path>
             </svg>
         </button>
-        <div class={isOpen() ? styles.dropdown : styles.dropdownHidden}>
+        <div class={isOpen() ? styles.dropdown : styles.dropdownHidden}
+                //@ts-ignore
+                use:clickOutside={handleClickOutsideDropdown}>
+
             <label class={styles.label}>Number of inputs</label>
             <input class={styles.input} type="number" value={numberInputs()} onInput={handleChangeNumberInputs}></input>
             <label class={styles.label}>Number of outputs</label>
