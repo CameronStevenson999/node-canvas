@@ -43,6 +43,8 @@ const BoardComponent: Component = () => {
     });
 
     function handleOnMouseDownBoard(event: any) {
+        // Deselect node
+        setSelectedNode(null);
 
         // Start grabbing board
         setGrabbingBoard(true);
@@ -62,10 +64,29 @@ const BoardComponent: Component = () => {
             const deltaX = event.x - clickedPosition().x;
             const deltaY = event.y - clickedPosition().y;
 
-            const boardWrapperElement = document.getElementById("boardWrapper");
-            if (boardWrapperElement) {
-                boardWrapperElement.scrollBy(-deltaX, -deltaY);
-                setClickedPosition({ x: event.x, y: event.y });
+            // User clicked on node
+            if (selectedNode() !== null) {
+                const deltaX = event.x = clickedPosition().x;
+                const deltaY = event.y = clickedPosition().y;
+
+                const node = nodes().find((node) => node.id === selectedNode());
+                if (node) {
+                    // Update node position
+                    node.currPosition.set((_) => {
+                        return {
+                            x: (node.prevPosition.get().x + deltaX) / scale(),
+                            y: (node.prevPosition.get().y + deltaY) / scale(),
+                        };
+                    });
+                }
+            }
+            // User clicked on board
+            else {
+                const boardWrapperElement = document.getElementById("boardWrapper");
+                if (boardWrapperElement) {
+                    boardWrapperElement.scrollBy(-deltaX, -deltaY);
+                    setClickedPosition({ x: event.x, y: event.y });
+                }
             }
         }
     }
@@ -91,7 +112,21 @@ const BoardComponent: Component = () => {
 
     function handleOnClickDelete() {}
 
-    function handleOnMouseDownNode(id: string, event: any) {}
+    function handleOnMouseDownNode(id: string, event: any) {
+        // Select node
+        setSelectedNode(id);
+
+        // Update first click position
+        setClickedPosition({ x: event.x, y: event.y });
+        
+        const node = nodes().find((node) => node.id === selectedNode());
+        if (node) {
+            // Update node position
+            node.prevPosition.set((_) => {
+                return { x: node.currPosition.get().x * scale(), y: node.currPosition.get().y * scale() };
+            });
+        }
+    }
 
     function handleOnMouseDownOutput(outputPositionX: number, outputPositionY: number, nodeId: string, outputIndex: number) {}
 
