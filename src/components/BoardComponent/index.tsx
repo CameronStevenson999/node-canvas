@@ -61,8 +61,6 @@ const BoardComponent: Component = () => {
     function handleOnMouseMove(event: any) {
         // User clicked somewhere
         if (clickedPosition().x >= 0 && clickedPosition().y >= 0) {
-            const deltaX = event.x - clickedPosition().x;
-            const deltaY = event.y - clickedPosition().y;
 
             // User clicked on node
             if (selectedNode() !== null) {
@@ -80,8 +78,11 @@ const BoardComponent: Component = () => {
                     });
                 }
             }
-            // User clicked on board
+            // User clicked on board, move board
             else {
+                const deltaX = event.x - clickedPosition().x;
+                const deltaY = event.y - clickedPosition().y;
+
                 const boardWrapperElement = document.getElementById("boardWrapper");
                 if (boardWrapperElement) {
                     boardWrapperElement.scrollBy(-deltaX, -deltaY);

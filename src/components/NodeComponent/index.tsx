@@ -1,4 +1,4 @@
-import { Accessor, Component, For } from "solid-js";
+import { Accessor, Component, For, createEffect, createSignal } from "solid-js";
 import styles from "./styles.module.css"
 
 interface NodeProps {
